@@ -2,13 +2,16 @@ module App (appComponent) where
 
 import Prelude
 
+import Bool.Parsing (boolExpr)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
+import Halogen.HTML.Properties as HP
+import Text.Parsing.StringParser (runParser)
 
-type State = Int
+data Action = UpdateText String
 
-data Action = Increment | Decrement
+type State = String
 
 appComponent :: forall query input output m. H.Component query input output m
 appComponent =
@@ -19,20 +22,15 @@ appComponent =
     }
 
 initialState :: forall input. input -> State
-initialState _ = 0
+initialState _ = ""
 
 render :: forall m. State -> H.ComponentHTML Action () m
 render state =
   HH.div_
-    [ HH.button [ HE.onClick \_ -> Decrement ] [ HH.text "-" ]
-    , HH.text (show state)
-    , HH.button [ HE.onClick \_ -> Increment ] [ HH.text "+" ]
+    [ HH.input [ HP.type_ HP.InputText, HE.onValueInput UpdateText ]
+    , HH.text $ show $ runParser boolExpr state
     ]
 
 handleAction :: forall output m. Action -> H.HalogenM State Action () output m Unit
 handleAction = case _ of
-  Decrement ->
-    H.modify_ \state -> state - 1
-
-  Increment ->
-    H.modify_ \state -> state + 1
+  UpdateText s -> H.put s
