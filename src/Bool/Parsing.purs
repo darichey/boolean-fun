@@ -1,4 +1,4 @@
-module Bool.Parsing (boolExpr) where
+module Bool.Parsing (BoolNotation, algebraicNotation, boolExpr, programmingNotation) where
 
 import Prelude
 
@@ -9,19 +9,39 @@ import Text.Parsing.StringParser (Parser)
 import Text.Parsing.StringParser.CodePoints as CP
 import Text.Parsing.StringParser.Expr (Assoc(..), Operator(..), buildExprParser)
 
-boolExpr' :: Parser BoolExpr
-boolExpr' = fix $ \p -> buildExprParser opTable (boolTerm p)
+type BoolNotation =
+  { negationOperator :: String
+  , andOperator :: String
+  , orOperator :: String
+  }
+
+algebraicNotation :: BoolNotation
+algebraicNotation =
+  { negationOperator: "~"
+  , andOperator: "*"
+  , orOperator: "+"
+  }
+
+programmingNotation :: BoolNotation
+programmingNotation =
+  { negationOperator: "!"
+  , andOperator: "&&"
+  , orOperator: "||"
+  }
+
+boolExpr' :: BoolNotation -> Parser BoolExpr
+boolExpr' cfg = fix $ \p -> buildExprParser opTable (boolTerm p)
   where
-  opTable = [ [ Prefix (string "~" $> Not) ]
-            , [ Infix (string "*" $> And) AssocRight ]
-            , [ Infix (string "+" $> Or) AssocRight ]
+  opTable = [ [ Prefix (string cfg.negationOperator $> Not) ]
+            , [ Infix (string cfg.andOperator $> And) AssocRight ]
+            , [ Infix (string cfg.orOperator $> Or) AssocRight ]
             ]
 
   boolTerm p = (Var <$> anyLetter)
             <|> char '(' *> p <* char ')'
 
-boolExpr :: Parser BoolExpr
-boolExpr = CP.skipSpaces *> lexeme boolExpr'
+boolExpr :: BoolNotation -> Parser BoolExpr
+boolExpr cfg = CP.skipSpaces *> lexeme (boolExpr' cfg)
 
 -- Utilities for dealing with whitespace
 
