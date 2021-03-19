@@ -11,6 +11,8 @@ data BoolExpr
   | And BoolExpr BoolExpr
   | Or BoolExpr BoolExpr
 
+derive instance eqBoolExpr :: Eq BoolExpr
+
 derive instance genericBoolExpr :: Generic BoolExpr _
 
 instance showBoolExpr :: Show BoolExpr where
