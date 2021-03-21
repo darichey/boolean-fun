@@ -4,7 +4,8 @@ import Prelude
 
 import Bool.Eval (truthTable)
 import Bool.Model (BoolExpr)
-import Bool.Parsing (BoolNotation, algebraicNotation, boolExpr, programmingNotation)
+import Bool.Notation (BoolNotation, algebraicNotation, programmingNotation)
+import Bool.Parsing (boolExpr)
 import Data.Array as A
 import Data.Either (Either(..))
 import Data.List as L

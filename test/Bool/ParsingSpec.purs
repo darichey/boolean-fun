@@ -3,7 +3,8 @@ module Test.Spec.ParsingSpec where
 import Prelude
 
 import Bool.Model (BoolExpr(..))
-import Bool.Parsing (algebraicNotation, boolExpr, programmingNotation)
+import Bool.Notation (algebraicNotation, programmingNotation)
+import Bool.Parsing (boolExpr)
 import Control.Monad.Error.Class (class MonadThrow)
 import Data.Either (Either(..))
 import Data.Traversable (traverse_)

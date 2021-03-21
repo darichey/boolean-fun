@@ -1,33 +1,14 @@
-module Bool.Parsing (BoolNotation, algebraicNotation, boolExpr, programmingNotation) where
+module Bool.Parsing (boolExpr) where
 
 import Prelude
 
 import Bool.Model (BoolExpr(..))
+import Bool.Notation (BoolNotation)
 import Control.Alt ((<|>))
 import Control.Lazy (fix)
 import Text.Parsing.StringParser (Parser)
 import Text.Parsing.StringParser.CodePoints as CP
 import Text.Parsing.StringParser.Expr (Assoc(..), Operator(..), buildExprParser)
-
-type BoolNotation =
-  { negationOperator :: String
-  , andOperator :: String
-  , orOperator :: String
-  }
-
-algebraicNotation :: BoolNotation
-algebraicNotation =
-  { negationOperator: "~"
-  , andOperator: "*"
-  , orOperator: "+"
-  }
-
-programmingNotation :: BoolNotation
-programmingNotation =
-  { negationOperator: "!"
-  , andOperator: "&&"
-  , orOperator: "||"
-  }
 
 boolExpr' :: BoolNotation -> Parser BoolExpr
 boolExpr' cfg = fix $ \p -> buildExprParser opTable (boolTerm p)
