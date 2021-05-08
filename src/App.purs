@@ -3,9 +3,10 @@ module App (appComponent) where
 import Prelude
 
 import Bool.Eval (truthTable)
-import Bool.Model (BoolExpr)
+import Bool.Model (BoolExpr, prettyPrint)
 import Bool.Notation (BoolNotation, algebraicNotation, programmingNotation)
 import Bool.Parsing (boolExpr)
+import Bool.SumOfProducts (sumOfProducts)
 import Data.Array as A
 import Data.Either (Either(..))
 import Data.List as L
@@ -61,6 +62,15 @@ render state =
         case runParser (boolExpr state.notation) state.text of
           Left _ -> []
           Right e -> [ table e ]
+    , HH.div_
+      [ HH.p_ [ HH.text "Sum of Products: " ]
+      , HH.p_
+        [ HH.text $
+          case runParser (boolExpr state.notation) state.text of
+            Left _ -> ""
+            Right e -> prettyPrint state.notation (sumOfProducts e)
+        ]
+      ]
     ]
 
 table :: forall w i. BoolExpr -> HH.HTML w i
