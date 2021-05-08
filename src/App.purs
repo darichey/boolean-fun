@@ -57,7 +57,6 @@ render state =
       [ HH.text "Y = "
       , HH.input [ HP.type_ InputText, HE.onValueInput UpdateText ]
       ]
-    -- , HH.text $ show state.expr
     , HH.div_
         case runParser (boolExpr state.notation) state.text of
           Left _ -> []
@@ -71,10 +70,10 @@ table e = HH.table_ $ A.cons heading content
 
   heading = HH.tr_ $ map (HH.th_ <<< A.singleton <<< HH.text <<< CU.singleton) $ A.snoc (t.variables) 'Y'
 
-  content = A.reverse $ map (HH.tr_ <<< map (HH.td_ <<< A.singleton <<< HH.text <<< CU.singleton)) $ map convertRow $ t.rows
+  content = A.reverse $ map (HH.tr_ <<< map (HH.td_ <<< A.singleton <<< HH.text <<< CU.singleton) <<< convertRow) t.rows
 
-  convertRow :: { bindings :: M.Map Char Boolean, value :: Boolean } -> Array Char
-  convertRow { bindings, value } = map boolChar (A.snoc (L.toUnfoldable $ M.values bindings) value)
+  convertRow :: { bindings :: Array Boolean, value :: Boolean } -> Array Char
+  convertRow { bindings, value } = map boolChar (A.snoc bindings value)
 
   boolChar :: Boolean -> Char
   boolChar true = 'T'

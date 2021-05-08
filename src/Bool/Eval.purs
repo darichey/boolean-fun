@@ -7,13 +7,14 @@ import Data.Array (cons, length, sort, zip)
 import Data.Map as M
 import Data.Maybe (fromJust)
 import Data.Set as S
+import Data.Unfoldable (replicateA)
 import Partial.Unsafe (unsafePartial)
 
 type Bindings = M.Map Char Boolean
 
 type TruthTable =
   { variables :: Array Char
-  , rows :: Array { bindings :: Bindings, value :: Boolean }
+  , rows :: Array { bindings :: Array Boolean, value :: Boolean }
   }
 
 -- Evaluate a boolean expression given the values for every variable.
@@ -40,18 +41,15 @@ vars = sort <<< S.toUnfoldable <<< go S.empty
     Or e1 e2 -> S.union (go acc e1) (go acc e2)
 
 truthTable :: BoolExpr -> TruthTable
-truthTable expr = { variables, rows }
+truthTable expr =
+  { variables
+  , rows: map (\bindings -> { bindings, value: unsafePartial $ eval (mkBindings variables bindings) expr }) (bools (length variables))
+  }
   where
-  variables = vars expr
-
-  rows = map (\bindings -> { bindings, value: unsafePartial $ eval bindings expr }) (allBindings variables)
+    variables = vars expr
   
-
-allBindings :: Array Char -> Array Bindings
-allBindings inputs = map (\vals -> M.fromFoldable $ zip inputs vals) combs
-  where
-    combs = bools $ length inputs
-
 bools :: Int -> Array (Array Boolean)
-bools 1 = [[true], [false]]
-bools n = (bools (n - 1)) >>= (\a -> [cons true a, cons false a])
+bools n = replicateA n [true, false]
+
+mkBindings :: Array Char -> Array Boolean -> Bindings
+mkBindings vars values = M.fromFoldable $ zip vars values
